@@ -17,6 +17,7 @@ Desktop.ini
 
 # Runtime data
 amazons_saves.dat
+.claude/
 output/
 Amazons.zip
 TODO.md
