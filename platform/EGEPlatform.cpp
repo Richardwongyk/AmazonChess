@@ -4,12 +4,37 @@
 #include <graphics.h>   // EGE: initgraph, closegraph, drawing, input, etc.
 #include <ege.h>        // for ege::MUSIC
 #include <cstdlib>
+#include <windows.h>
+#include <string>
+
+// ====== UTF-8 to Wide String Conversion ======
+//
+// EGE provides both char* (ANSI) and wchar_t* (Unicode) overloads
+// for all text functions. The char* overloads use the system's ANSI
+// codepage (CP_ACP) for conversion, which is unreliable:
+//   - On Chinese Windows, CP_ACP = GBK
+//   - On English Windows, CP_ACP = Windows-1252
+//   - Neither correctly handles UTF-8 strings
+//
+// By explicitly converting UTF-8 to wchar_t and calling EGE's
+// wchar_t overloads, we bypass CP_ACP entirely and work correctly
+// on any Windows locale.
+
+static std::wstring toWide(const char* utf8) {
+    if (!utf8 || !*utf8) return L"";
+    int len = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, nullptr, 0);
+    if (len <= 0) return L"";
+    std::wstring w(len - 1, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, utf8, -1, &w[0], len);
+    return w;
+}
 
 // ====== Window ======
 
 bool EGEPlatform::initWindow(int width, int height, const char* title) {
+    std::wstring wtitle = toWide(title);
     initgraph(width, height, INIT_RENDERMANUAL);
-    setcaption(title);
+    setcaption(wtitle.c_str());
     return is_run();
 }
 
@@ -24,7 +49,6 @@ bool EGEPlatform::isRunning() {
 // ====== Drawing ======
 
 void EGEPlatform::clearDevice() {
-    // setbkcolor must have been called first
     cleardevice();
 }
 
@@ -61,15 +85,19 @@ void EGEPlatform::fillEllipse(int cx, int cy, int w, int h) {
 }
 
 void EGEPlatform::drawText(int x, int y, const char* text) {
-    outtextxy(x, y, text);
+    std::wstring wtext = toWide(text);
+    wchar_t* p = const_cast<wchar_t*>(wtext.c_str());
+    outtextxy(x, y, p);
 }
 
 int EGEPlatform::textWidth(const char* text) {
-    return textwidth(text);
+    std::wstring wtext = toWide(text);
+    return textwidth(wtext.c_str());
 }
 
 void EGEPlatform::setFont(int size, const char* faceName) {
-    setfont(size, 0, faceName);
+    std::wstring wname = toWide(faceName);
+    setfont(size, 0, wname.c_str());
 }
 
 void EGEPlatform::setFillColor(Color c) {
@@ -122,7 +150,6 @@ void EGEPlatform::delayFPS(int fps) {
 }
 
 // ====== Audio ======
-// Uses ege::MUSIC via opaque pointer to avoid exposing EGE in headers.
 
 EGEPlatform::~EGEPlatform() {
     if (musicHandle_) {
@@ -135,7 +162,8 @@ bool EGEPlatform::openMusic(const char* filePath) {
     if (!musicHandle_)
         musicHandle_ = new ege::MUSIC();
     auto* m = static_cast<ege::MUSIC*>(musicHandle_);
-    return m->OpenFile(filePath) == 0;
+    std::wstring wpath = toWide(filePath);
+    return m->OpenFile(wpath.c_str()) == 0;
 }
 
 void EGEPlatform::playMusic(bool loop) {
