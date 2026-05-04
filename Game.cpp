@@ -96,7 +96,7 @@ void Game::deleteCurrentGame() {
         }
     }
     if (index_to_delete != -1) {
-        SaveManager::deleteRecord(index_to_delete);
+        SaveManager::deleteRecord(index_to_delete + 1);
     }
 }
 
@@ -110,30 +110,31 @@ void Game::set_game_state(GameConstants::GameState state) {
 
     switch (state) {
     case GameConstants::GAME_MENU:
-        platform_->pauseMusic();
+        platform_->stopMusic();
         renderer_->draw_menu();
         break;
     case GameConstants::GAME_MODE_SELECT:
-        platform_->pauseMusic();
+        platform_->stopMusic();
         selected_mode_ = -1;
         renderer_->draw_mode_select();
         break;
     case GameConstants::GAME_DIFFICULTY_SELECT:
-        platform_->pauseMusic();
+        platform_->stopMusic();
         renderer_->draw_difficulty_select();
         break;
     case GameConstants::GAME_PLAYING:
         update_game_display();
+        platform_->stopMusic();
         platform_->playMusic(true);
         break;
     case GameConstants::GAME_OVER: {
         std::string winner = board_->is_winner_black() ? "黑方" : "白方";
         renderer_->draw_game_over(winner);
-        platform_->pauseMusic();
+        platform_->stopMusic();
         break;
     }
     case GameConstants::GAME_LOAD_MENU:
-        platform_->pauseMusic();
+        platform_->stopMusic();
         break;
     }
 }
@@ -357,6 +358,12 @@ void Game::execute_ai_move() {
     default:
         move = getBestMove2(board, is_black);
         break;
+    }
+
+    if (move[0] == -1 && move[1] == -1) {
+        board_->check_game_over();
+        update_game_display();
+        return;
     }
 
     Move chess_move;
