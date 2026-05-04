@@ -20,6 +20,7 @@ LIB_DIR  = $(EGE_DIR)
 # ---- Compiler & Linker flags ----
 CXXFLAGS = -I. -I$(INC_DIR) -std=gnu++17 -O2 -pipe \
            -fno-ms-extensions \
+           -finput-charset=UTF-8 -fexec-charset=GBK \
            -Werror=return-type -Werror=vla
 LDFLAGS  = -L$(LIB_DIR) -lgraphics \
            -luuid -lmsimg32 -lgdi32 -limm32 -lole32 -loleaut32 -lwinmm -lgdiplus \

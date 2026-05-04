@@ -58,6 +58,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     -O2
     -pipe
     -fno-ms-extensions
+    -finput-charset=UTF-8 -fexec-charset=GBK
     -Werror=return-type
     -Werror=vla
 )
