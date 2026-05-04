@@ -35,10 +35,16 @@ bool EGEPlatform::initWindow(int width, int height, const char* title) {
     std::wstring wtitle = toWide(title);
     initgraph(width, height, INIT_RENDERMANUAL);
     setcaption(wtitle.c_str());
+    if (is_run()) {
+        init_called_ = true;
+        window_closed_ = false;
+    }
     return is_run();
 }
 
 void EGEPlatform::closeWindow() {
+    if (!init_called_ || window_closed_) return;
+    window_closed_ = true;
     closegraph();
 }
 
@@ -152,6 +158,8 @@ void EGEPlatform::delayFPS(int fps) {
 // ====== Audio ======
 
 EGEPlatform::~EGEPlatform() {
+    closeMusic();
+    closeWindow();  // ensure closegraph() is called (idempotent)
     if (musicHandle_) {
         delete static_cast<ege::MUSIC*>(musicHandle_);
         musicHandle_ = nullptr;

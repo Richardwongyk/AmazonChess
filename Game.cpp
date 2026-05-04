@@ -42,7 +42,7 @@ void Game::generateGameId() {
 }
 
 void Game::run() {
-    while (platform_->isRunning()) {
+    while (platform_->isRunning() && !quit_requested_) {
         switch (current_state_) {
         case GameConstants::GAME_MENU:
             handle_menu_input();
@@ -145,7 +145,7 @@ void Game::handle_menu_input() {
     } else if (platform_->isKeyDown(KEY_B)) {
         enter_load_menu();
     } else if (platform_->isKeyDown(KEY_C) || platform_->isKeyDown(KEY_ESC)) {
-        platform_->closeWindow();  // causes isRunning() → false, main loop exits
+        quit_requested_ = true;
     }
 }
 
@@ -188,7 +188,7 @@ void Game::handle_game_input() {
     }
 
     if (platform_->isKeyDown(KEY_ESC)) {
-        platform_->closeWindow();
+        quit_requested_ = true;
         return;
     }
 
@@ -228,7 +228,7 @@ void Game::handle_game_over_input() {
         deleteCurrentGame();
         set_game_state(GameConstants::GAME_MENU);
     } else if (platform_->isKeyDown(KEY_ESC)) {
-        platform_->closeWindow();
+        quit_requested_ = true;
     }
 }
 
@@ -457,7 +457,7 @@ void Game::handle_load_input() {
     }
 
     if (platform_->isKeyDown(KEY_ESC)) {
-        platform_->closeWindow();
+        quit_requested_ = true;
         return;
     }
 

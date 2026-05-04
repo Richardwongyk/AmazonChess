@@ -43,6 +43,7 @@ private:
     int move_phase_;
     Move chess_move_;
     Move arrow_move_;
+    bool quit_requested_ = false;
 
     std::vector<std::pair<int, int>> highlight_moves_;
     std::vector<std::pair<int, int>> highlight_arrows_;

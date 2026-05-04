@@ -56,6 +56,8 @@ public:
 
 private:
     void* musicHandle_ = nullptr;  // opaque: ege::MUSIC*
+    bool window_closed_ = false;
+    bool init_called_ = false;
 };
 
 #endif
