@@ -1,0 +1,20 @@
+# Build artifacts
+*.o
+*.res
+*.exe
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Runtime data
+amazons_saves.dat
+output/
